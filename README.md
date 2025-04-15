@@ -16,5 +16,5 @@ go get	"github.com/philippgille/chromem-go"
 
 4. The TestAddVectorIndex method attempts to add a vector index separately, but when it is executed, it tells me that the index exists, which makes me very confused
 
-
+5. The EmbeddingFunc method converts text into a [] float32 array, with the underlying layer using ollama, which can be easily replaced in the testing environment
 
