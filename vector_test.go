@@ -1,4 +1,4 @@
-package kuzu_vector
+package main
 
 import (
 	"context"

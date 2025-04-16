@@ -1,0 +1,99 @@
+{
+  "entityList": [
+    {
+      "entity_name": "Eino",
+      "entity_type": "框架",
+      "entity_description": "基于Golang语言的终极大模型应用开发框架，强调简洁性、可扩展性、可靠性与有效性，且更符合Go语言编程惯例。"
+    },
+    {
+      "entity_name": "Golang",
+      "entity_type": "技术",
+      "entity_description": "一种编程语言，Eino框架基于此语言开发。"
+    },
+    {
+      "entity_name": "MCP",
+      "entity_type": "协议",
+      "entity_description": "Model Context Protocol的缩写，是一种标准协议，通过它可以直接将LLM和各种数据源之间建立连接。"
+    },
+    {
+      "entity_name": "CloudWeGo",
+      "entity_type": "组织",
+      "entity_description": "开发和维护Eino框架的组织。"
+    },
+    {
+      "entity_name": "Hertz",
+      "entity_type": "技术",
+      "entity_description": "一种支持SSE的技术，用于实现流式输出。"
+    },
+    {
+      "entity_name": "SSE",
+      "entity_type": "技术",
+      "entity_description": "Server-Sent Events的缩写，是一种服务器推送技术，允许服务器端通过简单的HTTP响应向客户端发送事件。"
+    },
+    {
+      "entity_name": "DeepSeek",
+      "entity_type": "技术",
+      "entity_description": "一种大模型，以其优秀的复杂问题推理能力和规划能力脱颖而出，但原生函数调用功能缺失。"
+    },
+    {
+      "entity_name": "LangChain",
+      "entity_type": "框架",
+      "entity_description": "一种开源的LLM应用开发框架，Eino框架从它获取灵感。"
+    },
+    {
+      "entity_name": "LlamaIndex",
+      "entity_type": "框架",
+      "entity_description": "一种开源的LLM应用开发框架，Eino框架从它获取灵感。"
+    }
+  ],
+  "relationshipList": [
+    {
+      "source_entity": "Eino",
+      "target_entity": "Golang",
+      "relationship_description": "Eino框架是基于Golang语言开发的。",
+      "relationship_strength": 9
+    },
+    {
+      "source_entity": "Eino",
+      "target_entity": "MCP",
+      "relationship_description": "Eino框架可以结合MCP协议使用，实现与各种数据源的连接。",
+      "relationship_strength": 8
+    },
+    {
+      "source_entity": "Eino",
+      "target_entity": "CloudWeGo",
+      "relationship_description": "CloudWeGo是开发和维护Eino框架的组织。",
+      "relationship_strength": 9
+    },
+    {
+      "source_entity": "Eino",
+      "target_entity": "Hertz",
+      "relationship_description": "Eino框架可以集成Hertz技术，实现流式输出。",
+      "relationship_strength": 7
+    },
+    {
+      "source_entity": "Eino",
+      "target_entity": "SSE",
+      "relationship_description": "Eino框架可以利用SSE技术，实现服务器推送。",
+      "relationship_strength": 7
+    },
+    {
+      "source_entity": "Eino",
+      "target_entity": "DeepSeek",
+      "relationship_description": "Eino框架可以解决DeepSeek原生函数调用功能缺失的问题。",
+      "relationship_strength": 8
+    },
+    {
+      "source_entity": "Eino",
+      "target_entity": "LangChain",
+      "relationship_description": "Eino框架从LangChain框架获取灵感。",
+      "relationship_strength": 7
+    },
+    {
+      "source_entity": "Eino",
+      "target_entity": "LlamaIndex",
+      "relationship_description": "Eino框架从LlamaIndex框架获取灵感。",
+      "relationship_strength": 7
+    }
+  ]
+}
