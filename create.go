@@ -8,24 +8,6 @@ import (
 	"sync"
 )
 
-type Output struct {
-	EntityList       []*Entity           `json:"entityList"`
-	RelationshipList []*RelationshipList `json:"relationshipList"`
-}
-
-type Entity struct {
-	EntityName        string `json:"entity_name"`
-	EntityType        string `json:"entity_type"`
-	EntityDescription string `json:"entity_description"`
-}
-
-type RelationshipList struct {
-	SourceEntity            string `json:"source_entity"`
-	TargetEntity            string `json:"target_entity"`
-	RelationshipDescription string `json:"relationship_description"`
-	RelationshipStrength    int    `json:"relationship_strength"`
-}
-
 type Create struct {
 	vector *VectorDB
 	output *Output
@@ -35,22 +17,9 @@ var (
 	getOutputOnce sync.Once
 )
 
-const (
-	// CreateEntityNode 实体节点
-	CreateEntityNode string = "CREATE NODE TABLE IF NOT EXISTS Entity(id SERIAL PRIMARY KEY,entity_name STRING,entity_type STRING, entity_description string, description_embedding FLOAT[1024])"
-	// CreateEntityRefEdge 节点之间的关联关系
-	CreateEntityRefEdge string = "CREATE REL TABLE IF NOT EXISTS Relationship(FROM Entity TO Entity, id SERIAL PRIMARY KEY, relationship_description string,relationship_strength INT)"
-	// CreateEntityRefNode 关系节点，记录关系，只有节点可以创建向量索引、FTS索引
-	CreateEntityRefNode string = "CREATE NODE TABLE IF NOT EXISTS EntityRelationship( id SERIAL PRIMARY KEY, source_entity STRING,target_entity STRING,relationship_description string,description_embedding FLOAT[1024] ,relationship_strength INT)"
-
-	InsertEntityNode    = "CREATE (e:Entity { entity_name: $entity_name, entity_type:$entity_type,entity_description: $entity_description, description_embedding: $description_embedding})"
-	InsertEntityRefNode = "CREATE (e:EntityRelationship { source_entity: $source_entity, target_entity:$target_entity,relationship_description: $relationship_description, description_embedding: $description_embedding})"
-	InsertEntityRefEdge = "MATCH (e1:Entity {entity_name: $source_entity}) MATCH (e2:Entity {entity_name: $target_entity}) CREATE (e1)-[:Relationship{relationship_description:$relationship_description,relationship_strength:$relationship_strength}]->(e2);"
-)
-
-func (c *Create) OnCreate(needRemove bool) {
+func (c *Create) OnStart(needRemove bool) {
 	c.vector = &VectorDB{}
-	c.vector.InitConn(needRemove)
+	c.vector.InitConn(needRemove, false)
 	c.vector.LoadFTS()
 	c.vector.LoadVector()
 	c.vector.LoadVectorFunc() // 准备向量模型
@@ -176,19 +145,23 @@ func (c *Create) InsertNode() *Create {
 	return c
 }
 
-func (c *Create) CreateFTSIndex(tableName string, property string) *Create {
+// CreateFTSIndex fts索引可以作用多列
+func (c *Create) CreateFTSIndex(tableName string) *Create {
+	propList := "['entity_name','entity_description']"
+	if tableName == "EntityRelationship" {
+		propList = "['source_entity','target_entity','relationship_description']"
+	}
 	query := `
 	CALL CREATE_FTS_INDEX(
 		'%s',   
 		'%s_fts_index',  
-		['%s'],   
+		 %s,   
 		stemmer := 'porter',
 		stopwords := 'stopwords.csv'
 	)
 	`
-	//
 
-	_, err := c.vector.conn.Query(fmt.Sprintf(query, tableName, tableName, property))
+	_, err := c.vector.conn.Query(fmt.Sprintf(query, tableName, tableName, propList))
 	if err != nil {
 		panic(err)
 	}
@@ -196,11 +169,11 @@ func (c *Create) CreateFTSIndex(tableName string, property string) *Create {
 	return c
 }
 
+// CreateVectorIndex 向量索引只能作用于单列
 func (c *Create) CreateVectorIndex(tableName string, property string) *Create {
 	query := `
 		CALL CREATE_VECTOR_INDEX('%s','%s_vec_index','%s')
 	`
-
 	_, err := c.vector.conn.Query(fmt.Sprintf(query, tableName, tableName, property))
 	if err != nil {
 		panic(err)

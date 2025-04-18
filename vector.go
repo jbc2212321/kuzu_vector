@@ -19,7 +19,7 @@ func (*VectorDB) Name() string {
 	return "vector_db"
 }
 
-func (v *VectorDB) InitConn(needRemove bool) *VectorDB {
+func (v *VectorDB) InitConn(needRemove bool, readOnly bool) *VectorDB {
 	dbPath := v.Name()
 	if needRemove {
 		// 创建新数据
@@ -27,6 +27,7 @@ func (v *VectorDB) InitConn(needRemove bool) *VectorDB {
 	}
 
 	systemConfig := kuzu.DefaultSystemConfig()
+	systemConfig.ReadOnly = readOnly
 	systemConfig.BufferPoolSize = 1024 * 1024 * 1024
 	db, err := kuzu.OpenDatabase(dbPath, systemConfig)
 	if err != nil {

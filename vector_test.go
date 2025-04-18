@@ -6,22 +6,10 @@ import (
 	"testing"
 )
 
-func TestVector(t *testing.T) {
-	vector := &VectorDB{}
-	vector.InitConn(true).LoadVector().LoadVectorFunc().CreateVectorNode().CreateVectorIndex().CreateVectorExampleData()
-}
-
-func TestAddVectorIndex(t *testing.T) {
-
-	vector := &VectorDB{}
-	vector.InitConn(false).LoadVector().CreateVectorIndex()
-
-}
-
 func TestMatch(t *testing.T) {
 
 	vector := &VectorDB{}
-	vector.InitConn(false)
+	vector.InitConn(false, true)
 
 	//cypher := "MATCH (b:Book) WHERE b.title='The Quantum World' RETURN b"
 	cypher := "CALL SHOW_INDEXES() RETURN *"
@@ -43,18 +31,18 @@ func TestMatch(t *testing.T) {
 func TestVectorSearch(t *testing.T) {
 
 	vector := &VectorDB{}
-	vector.InitConn(false).LoadVector().LoadVectorFunc()
+	vector.InitConn(false, true).LoadVector().LoadVectorFunc()
 
-	query_vector, _ := vector.vectorFunc(context.Background(), "quantum machine learning")
+	query_vector, _ := vector.vectorFunc(context.Background(), "mcp是什么东西?")
 
 	query := `
 		CALL QUERY_VECTOR_INDEX(
-			'Book',
-			'title_vec_index',
+			'Entity',
+			'entity_vec_index',
 			$query_vector,
 			2
 		)
-		RETURN node.title ORDER BY distance;
+		RETURN node.entity_name,node.entity_description ,distance ORDER BY distance;
 	`
 	prepare, err := vector.conn.Prepare(query)
 	if err != nil {
@@ -64,6 +52,34 @@ func TestVectorSearch(t *testing.T) {
 	res, err := vector.conn.Execute(prepare, map[string]any{
 		"query_vector": FloatListToAnyList(query_vector),
 	})
+	if err != nil {
+		panic(err)
+	}
+
+	for res.HasNext() {
+		tuple, err := res.Next()
+		if err != nil {
+			panic(err)
+		}
+		defer tuple.Close()
+		// The tuple can also be converted to a string.
+		fmt.Print(tuple.GetAsString())
+	}
+
+}
+
+func TestFTSSearch(t *testing.T) {
+
+	vector := &VectorDB{}
+	vector.InitConn(false, true).LoadFTS()
+
+	query := `
+			CALL QUERY_FTS_INDEX('Entity', 'entity_fts_index', 'mcp', conjunctive := false)
+			return node.entity_name,node.entity_description,score
+			ORDER BY score DESC;
+	`
+
+	res, err := vector.conn.Query(query)
 	if err != nil {
 		panic(err)
 	}
